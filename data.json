@@ -117,5 +117,75 @@
     "hearts": 37,
     "createdAt": "2025-05-19T22:07:08.999Z",
     "__v": 0
+  },
+  {
+    "_id": "650b32c9e4bce17db221d8a7",
+    "message": "Long bike rides with no destination 🚴‍♀️",
+    "hearts": 19,
+    "createdAt": "2025-03-03T10:43:19.553Z",
+    "__v": 0
+  },
+  {
+    "_id": "64fcde98be72c80afc8d33ee",
+    "message": "When everything just clicks at work 💡",
+    "hearts": 25,
+    "createdAt": "2025-01-17T14:11:07.734Z",
+    "__v": 0
+  },
+  {
+    "_id": "63d1ecfc22cb0f173a6a8894",
+    "message": "A surprise sunny day in February ☀️",
+    "hearts": 30,
+    "createdAt": "2025-02-20T12:50:45.286Z",
+    "__v": 0
+  },
+  {
+    "_id": "64bb9b72a7a6b87ffce30d44",
+    "message": "Waking up before the alarm feeling refreshed 😴",
+    "hearts": 13,
+    "createdAt": "2025-04-10T06:39:58.914Z",
+    "__v": 0
+  },
+  {
+    "_id": "649a1dc0cced95dfad9a7e33",
+    "message": "Watching birds from the balcony 🐦",
+    "hearts": 6,
+    "createdAt": "2025-03-28T08:23:30.201Z",
+    "__v": 0
+  },
+  {
+    "_id": "652ee0db90de8445dfc29a2e",
+    "message": "Late-night deep talks with a friend 🌙",
+    "hearts": 31,
+    "createdAt": "2025-01-04T23:57:12.483Z",
+    "__v": 0
+  },
+  {
+    "_id": "63cf410d27b5f2cf6a97c028",
+    "message": "A clean desk and a clear mind 🧼🧠",
+    "hearts": 10,
+    "createdAt": "2025-05-06T11:45:01.006Z",
+    "__v": 0
+  },
+  {
+    "_id": "64aaf9ee8d8e2953df0cd987",
+    "message": "Hearing your favorite song on the radio 📻",
+    "hearts": 20,
+    "createdAt": "2025-04-25T15:20:38.527Z",
+    "__v": 0
+  },
+  {
+    "_id": "64b4b702df25e8e93f8a3e49",
+    "message": "The smell of fresh rain 🌧️",
+    "hearts": 12,
+    "createdAt": "2025-03-10T18:11:26.749Z",
+    "__v": 0
+  },
+  {
+    "_id": "6504d2b53a7bc742b7fbe114",
+    "message": "Seeing someone smile because of you 😊",
+    "hearts": 28,
+    "createdAt": "2025-02-12T20:02:14.318Z",
+    "__v": 0
   }
 ]
