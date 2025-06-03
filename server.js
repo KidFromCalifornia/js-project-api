@@ -1,6 +1,11 @@
 import cors from "cors";
 import express from "express";
-import thoughts from "./data.json";
+
+import mongoose from "mongoose";
+
+const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/thoughts";
+mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.Promise = Promise;
 
 // Defines the port the app will run on. Defaults to 8080, but can be overridden
 // when starting the server. Example command to overwrite PORT env variable value:
@@ -19,17 +24,48 @@ app.get("/", (req, res) => {
   res.send("I did it!");
 });
 
-app.get("/thoughts", (req, res) => {
-  res.json(thoughts);
+const Thought = mongoose.model("Thought", {
+  message: {
+    type: String,
+    required: true,
+    minlength: 5,
+    maxlength: 140,
+  },
+  hearts: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-app.get("/thoughts/:id", (req, res) => {
-  const { id } = req.params;
-  const thought = thoughts.find((t) => t._id === id);
-  if (thought) {
-    res.json(thought);
-  } else {
-    res.status(404).json({ error: "Thought not found" });
+new Thought({
+  message: "This is a test thought",
+  hearts: 0,
+}).save();
+
+app.get("/thoughts", async (req, res) => {
+  try {
+    const thoughts = await Thought.find().sort({ createdAt: -1 }).limit(20);
+    res.json(thoughts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/thoughts/:id", async (req, res) => {
+  try {
+    const thought = await Thought.findById(req.params.id);
+    if (thought) {
+      res.json(thought);
+    } else {
+      res.status(404).json({ error: "Thought not found" });
+    }
+  } catch (err) {
+    res.status(400).json({ error: "Invalid ID" });
   }
 });
 
@@ -55,45 +91,51 @@ app.get("/thoughts/search/:word", (req, res) => {
   res.json(filtered);
 });
 
-app.get("/thoughts/page/:page", (req, res) => {
+app.get("/thoughts/page/:page", async (req, res) => {
   const page = Number(req.params.page);
-  if (!Number.isInteger(page) || page <= 0) {
-    return res.status(400).json({ error: "Page must be a positive integer." });
-  }
   const pageSize = 5; // Number of thoughts per page
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-  const pagedThoughts = thoughts.slice(start, end);
-  res.json(pagedThoughts);
+
+  if (!Number.isInteger(page) || page <= 0) {
+    return res.status(400).json({ error: "Page must 1 or more " });
+  }
+
+  try {
+    const thoughts = await Thought.find()
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.json(thoughts);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-app.post("/thoughts", (req, res) => {
+app.post("/thoughts", async (req, res) => {
   const { message, hearts } = req.body;
-  if (!message) {
-    return res.status(400).json({ error: "Message is required" });
+  try {
+    const newThought = await Thought.create({
+      message,
+      hearts: hearts || 0,
+    });
+    res.status(201).json(newThought);
+  } catch (err) {
+    res
+      .status(400)
+      .json({ error: "Could not create thought", details: err.message });
   }
-  if (hearts !== undefined && (typeof hearts !== "number" || isNaN(hearts))) {
-    return res.status(400).json({ error: "Hearts must be a valid number" });
-  }
-  const newThought = {
-    _id: Date.now().toString(),
-    message,
-    hearts: hearts || 0,
-    createdAt: new Date().toISOString(),
-    __v: 0,
-  };
-  thoughts.push(newThought);
-  res.status(201).json(newThought);
 });
 
-app.delete("/thoughts/:id", (req, res) => {
-  const { id } = req.params;
-  const index = thoughts.findIndex((t) => t._id === id);
-  if (index !== -1) {
-    const deleted = thoughts.splice(index, 1);
-    res.json({ success: true, deleted: deleted[0] });
-  } else {
-    res.status(404).json({ error: "Thought not found" });
+app.delete("/thoughts/:id", async (req, res) => {
+  try {
+    const deleted = await Thought.findByIdAndDelete(req.params.id);
+    if (deleted) {
+      res.json({ success: true, deleted });
+    } else {
+      res.status(404).json({ error: "Thought not found" });
+    }
+  } catch (err) {
+    res.status(400).json({ error: "Invalid ID" });
   }
 });
 
