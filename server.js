@@ -41,10 +41,20 @@ const Thought = mongoose.model("Thought", {
   },
 });
 
-new Thought({
-  message: "This is a test thought",
-  hearts: 0,
-}).save();
+Thought.deleteMany().then(() => {
+  new Thought({
+    message: "This is a test one",
+    hearts: 0,
+  }).save();
+  new Thought({
+    message: "This is a test two",
+    hearts: 7,
+  }).save();
+  new Thought({
+    message: "This is a test 3",
+    hearts: 5,
+  }).save();
+}); // Clear the collection before seeding
 
 app.get("/thoughts", async (req, res) => {
   try {
@@ -123,6 +133,22 @@ app.post("/thoughts", async (req, res) => {
     res
       .status(400)
       .json({ error: "Could not create thought", details: err.message });
+  }
+});
+app.post("/thoughts/:id/like", async (req, res) => {
+  try {
+    const addHearts = await Thought.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { hearts: 1 } }, // Increment hearts by 1
+      { new: true }
+    );
+    if (addHearts) {
+      res.json(addHearts);
+    } else {
+      res.status(404).json({ error: "Thought not found" });
+    }
+  } catch (err) {
+    res.status(400).json({ error: "Invalid ID" });
   }
 });
 
