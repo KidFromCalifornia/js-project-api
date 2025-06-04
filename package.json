@@ -16,7 +16,8 @@
   "main": "server.js",
   "scripts": {
     "start": "babel-node server.js",
-    "dev": "nodemon server.js --exec babel-node"
+    "dev": "nodemon server.js --exec babel-node",
+    "build": "babel server.js -d dist"
   },
   "dependencies": {
     "@babel/core": "^7.17.9",

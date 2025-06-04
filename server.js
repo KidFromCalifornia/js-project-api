@@ -21,12 +21,21 @@ app.use(express.json());
 
 // Start defining your routes here
 app.get("/", (req, res) => {
-  res.send("I did it!");
+  Thought.find()
+    .then((thoughts) => {
+      res.json(thoughts);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    });
 });
 
 const Thought = mongoose.model("Thought", {
   message: {
-    type: String,
+    type: mongoose.Schema.Types.String,
+    trim: true,
+    ref: "Thought",
     required: true,
     minlength: 5,
     maxlength: 140,
@@ -41,20 +50,24 @@ const Thought = mongoose.model("Thought", {
   },
 });
 
-Thought.deleteMany().then(() => {
-  new Thought({
-    message: "This is a test one",
-    hearts: 0,
-  }).save();
-  new Thought({
-    message: "This is a test two",
-    hearts: 7,
-  }).save();
-  new Thought({
-    message: "This is a test 3",
-    hearts: 5,
-  }).save();
-}); // Clear the collection before seeding
+if (process.env.RESET_DATABASE) {
+  console.log("Resetting database");
+
+  const seedThoughts = async () => {
+    new Thought({
+      message: "This is a test one",
+      hearts: 0,
+    }).save();
+    new Thought({
+      message: "This is a test two",
+      hearts: 7,
+    }).save();
+    new Thought({
+      message: "This is a test 3",
+      hearts: 5,
+    }).save();
+  };
+}
 
 app.get("/thoughts", async (req, res) => {
   try {
