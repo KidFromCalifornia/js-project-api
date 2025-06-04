@@ -20,6 +20,7 @@
     "build": "babel server.js -d dist"
   },
   "dependencies": {
+    "@babel/cli": "^7.27.2",
     "@babel/core": "^7.17.9",
     "@babel/node": "^7.16.8",
     "@babel/preset-env": "^7.16.11",
