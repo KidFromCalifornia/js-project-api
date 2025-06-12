@@ -4,41 +4,28 @@ import authenticationUser from "../middlewares/authenticationUser.js";
 
 const router = express.Router();
 
-router.get("/", (_, res) => {
-  Thought.find()
-    .then((thoughts) => {
-      res.json(thoughts);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).json({ error: "Internal server error" });
-    });
-});
-
-router.get("/thoughts", async (_, res) => {
+router.get("/", async (_, res) => {
   try {
     const thoughts = await Thought.find().sort({ createdAt: -1 }).limit(20);
     res.json(thoughts);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.get("/thoughts/:id", async (req, res) => {
+router.get("/search/:word", async (req, res) => {
+  const word = req.params.word.toLowerCase();
   try {
-    const thought = await Thought.findById(req.params.id);
-    if (thought) {
-      res.json(thought);
-    } else {
-      res.status(404).json({ error: "Thought not found" });
-    }
+    const filtered = await Thought.find({
+      message: { $regex: word, $options: "i" },
+    });
+    res.json(filtered);
   } catch (err) {
-    res.status(400).json({ error: "Invalid ID" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.get("/thoughts/hearts/:min", async (req, res) => {
+router.get("/hearts/:min", async (req, res) => {
   const min = Number(req.params.min);
   if (isNaN(min)) {
     return res
@@ -53,39 +40,37 @@ router.get("/thoughts/hearts/:min", async (req, res) => {
   }
 });
 
-router.get("/thoughts/search/:word", async (req, res) => {
-  const word = req.params.word.toLowerCase();
-  try {
-    const filtered = await Thought.find({
-      message: { $regex: word, $options: "i" },
-    });
-    res.json(filtered);
-  } catch (err) {
-    console.error("Search error:", err); // Add this line
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.get("/thoughts/page/:page", async (req, res) => {
+router.get("/page/:page", async (req, res) => {
   const page = Number(req.params.page);
-  const pageSize = 5; // Number of thoughts per page
-
+  const pageSize = 5;
   if (!Number.isInteger(page) || page <= 0) {
     return res.status(400).json({ error: "Page must 1 or more " });
   }
-
   try {
     const thoughts = await Thought.find()
       .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
-
     res.json(thoughts);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router.post("/thoughts", authenticationUser, async (req, res) => {
+
+router.get("/:id", async (req, res) => {
+  try {
+    const thought = await Thought.findById(req.params.id);
+    if (thought) {
+      res.json(thought);
+    } else {
+      res.status(404).json({ error: "Thought not found" });
+    }
+  } catch (err) {
+    res.status(400).json({ error: "Invalid ID" });
+  }
+});
+
+router.post("/", authenticationUser, async (req, res) => {
   const { message, hearts } = req.body;
   try {
     const newThought = await Thought.create({
@@ -100,11 +85,11 @@ router.post("/thoughts", authenticationUser, async (req, res) => {
   }
 });
 
-router.post("/thoughts/:id/like", authenticationUser, async (req, res) => {
+router.post("/:id/like", authenticationUser, async (req, res) => {
   try {
     const addHearts = await Thought.findByIdAndUpdate(
       req.params.id,
-      { $inc: { hearts: 1 } }, // Increment hearts by 1
+      { $inc: { hearts: 1 } },
       { new: true }
     );
     if (addHearts) {
@@ -117,7 +102,7 @@ router.post("/thoughts/:id/like", authenticationUser, async (req, res) => {
   }
 });
 
-router.delete("/thoughts/:id", authenticationUser, async (req, res) => {
+router.delete("/:id", authenticationUser, async (req, res) => {
   try {
     const deleted = await Thought.findByIdAndDelete(req.params.id);
     if (deleted) {
@@ -130,8 +115,7 @@ router.delete("/thoughts/:id", authenticationUser, async (req, res) => {
   }
 });
 
-// PATCH endpoint to edit a thought
-router.patch("/thoughts/:id", authenticationUser, async (req, res) => {
+router.patch("/:id", authenticationUser, async (req, res) => {
   try {
     const updatedThought = await Thought.findByIdAndUpdate(
       req.params.id,
@@ -160,4 +144,5 @@ if (process.env.RESET_DATABASE) {
   };
   seedThoughts();
 }
+
 export default router;

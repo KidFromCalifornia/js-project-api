@@ -18,6 +18,7 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
 
+  // 1. Validate input first!
   if (!username || !email || !password) {
     return res.status(400).json({ error: "All fields are required" });
   }
@@ -35,13 +36,14 @@ router.post("/register", async (req, res) => {
   if (existingUser) {
     return res.status(400).json({ error: "Username or email already exists" });
   }
+
+  // 2. Only hash and save after validation
   const salt = bcrypt.genSaltSync();
   const user = new User({
     username,
     email,
     password: bcrypt.hashSync(password, salt),
   });
-
   await user.save();
 
   res.status(201).json({

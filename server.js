@@ -17,7 +17,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Use routes
+// Use routesrs
 app.use("/thoughts", thoughtsRoutes);
 app.use("/", usersRoutes);
 
