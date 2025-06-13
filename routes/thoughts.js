@@ -76,6 +76,7 @@ router.post("/", authenticationUser, async (req, res) => {
     const newThought = await Thought.create({
       message,
       hearts: hearts || 0,
+      user: req.user._id,
     });
     res.status(201).json(newThought);
   } catch (err) {
@@ -104,12 +105,17 @@ router.post("/:id/like", authenticationUser, async (req, res) => {
 
 router.delete("/:id", authenticationUser, async (req, res) => {
   try {
-    const deleted = await Thought.findByIdAndDelete(req.params.id);
-    if (deleted) {
-      res.json({ success: true, deleted });
-    } else {
-      res.status(404).json({ error: "Thought not found" });
+    const thought = await Thought.findById(req.params.id);
+    if (!thought) {
+      return res.status(404).json({ error: "Thought not found" });
     }
+    if (!thought.user.equals(req.user._id)) {
+      return res
+        .status(403)
+        .json({ error: "You can only delete your own thoughts" });
+    }
+    await thought.deleteOne();
+    res.json({ success: true, deleted: thought });
   } catch (err) {
     res.status(400).json({ error: "Invalid ID" });
   }
