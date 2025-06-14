@@ -148,7 +148,7 @@ router.patch("/:id", authenticationUser, async (req, res) => {
       req.body,
       { new: true, runValidators: true }
     );
-    res.json(updatedThought);
+    res.json({ success: true, thought: updatedThought });
   } catch (err) {
     res
       .status(400)
