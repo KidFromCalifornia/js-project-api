@@ -79,7 +79,7 @@ router.post("/", authenticationUser, async (req, res) => {
     const newThought = await Thought.create({
       message,
       hearts: hearts || 0,
-      user: req.username.usernamn,
+      username: req.user.username,
     });
     res.status(201).json(newThought);
   } catch (err) {
