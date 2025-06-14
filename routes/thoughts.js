@@ -69,6 +69,9 @@ router.get("/:id", async (req, res) => {
     res.status(400).json({ error: "Invalid ID" });
   }
 });
+/////////////////
+// post routes //
+/////////////////
 
 router.post("/", authenticationUser, async (req, res) => {
   const { message, hearts } = req.body;
@@ -76,7 +79,7 @@ router.post("/", authenticationUser, async (req, res) => {
     const newThought = await Thought.create({
       message,
       hearts: hearts || 0,
-      user: req.user._id,
+      user: req.user.usernamne,
     });
     res.status(201).json(newThought);
   } catch (err) {
@@ -103,6 +106,10 @@ router.post("/:id/like", authenticationUser, async (req, res) => {
   }
 });
 
+////////////////////
+// Delete routes ///
+////////////////////
+
 router.delete("/:id", authenticationUser, async (req, res) => {
   try {
     const thought = await Thought.findById(req.params.id);
@@ -120,6 +127,9 @@ router.delete("/:id", authenticationUser, async (req, res) => {
     res.status(400).json({ error: "Invalid ID" });
   }
 });
+//////////////////
+// Patch routes //
+//////////////////
 
 router.patch("/:id", authenticationUser, async (req, res) => {
   try {
@@ -140,15 +150,15 @@ router.patch("/:id", authenticationUser, async (req, res) => {
   }
 });
 
-if (process.env.RESET_DATABASE) {
-  console.log("Resetting database");
-  const seedThoughts = async () => {
-    await Thought.deleteMany({});
-    await new Thought({ message: "This is a test one", hearts: 0 }).save();
-    await new Thought({ message: "This is a test two", hearts: 7 }).save();
-    await new Thought({ message: "This is a test 3", hearts: 5 }).save();
-  };
-  seedThoughts();
-}
+//if (process.env.RESET_DATABASE) {
+// console.log("Resetting database");
+//const seedThoughts = async () => {
+//await Thought.deleteMany({});
+//await new Thought({ message: "This is a test one", hearts: 0 }).save();
+//await new Thought({ message: "This is a test two", hearts: 7 }).save();
+//await new Thought({ message: "This is a test 3", hearts: 5 }).save();
+//};
+//seedThoughts();
+//}
 
 export default router;
