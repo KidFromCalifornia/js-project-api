@@ -14,7 +14,11 @@ mongoose.Promise = Promise;
 const port = process.env.PORT || 8088;
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*", // Allow all origins for development
+  })
+);
 app.use(express.json());
 
 // Use routesrs
