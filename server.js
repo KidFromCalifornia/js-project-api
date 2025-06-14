@@ -13,7 +13,7 @@ mongoose.Promise = Promise;
 
 const port = process.env.PORT || 8088;
 const app = express();
-
+const listEndpoints = require("express-list-endpoints");
 app.use(
   cors({
     origin: "*", // Allow all origins for development
@@ -25,7 +25,13 @@ app.use(express.json());
 app.use("/thoughts", thoughtsRoutes);
 app.use("/", usersRoutes);
 
-// ...any other setup...
+app.get("/", (req, res) => {
+  const endpoints = listEndpoints(app);
+  res.json({
+    message: " Welcome to my Endpoint to Happy Thoughts API",
+    endpoints,
+  });
+});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
